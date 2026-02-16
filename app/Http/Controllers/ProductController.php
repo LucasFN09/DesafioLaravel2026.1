@@ -38,6 +38,6 @@ class ProductController extends Controller
     public function show($id)
     {
         $produto = Product::with('vendedor')->findOrFail($id);
-        return view('produtos.show', compact('produto'));
+        return view('produto_individual', compact('produto'));
     }
 }

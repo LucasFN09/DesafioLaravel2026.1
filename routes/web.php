@@ -10,7 +10,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('home');
 
     
-    Route::get('/produto/{id}', [ProductController::class, 'show'])->name('produto.show');
+    Route::get('/produto/{id}', [ProductController::class, 'show'])->name('produto_individual');
 
     
     Route::get('/dashboard', function () {

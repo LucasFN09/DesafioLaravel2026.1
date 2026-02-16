@@ -58,7 +58,7 @@
         @forelse($produtos as $produto)
             <div class="p-4 bg-white shadow rounded-lg flex flex-col justify-between">
                 <div>
-                    <img src="{{ $produto->foto ?? 'https://via.placeholder.com/500' }}" class="w-full h-48 object-cover rounded-lg mb-4">
+                    <img src="{{ $produto->foto ?? '' }}" class="w-full h-48 object-cover rounded-lg mb-4">
                     <h1 class="text-xl font-bold">{{ $produto->nome }}</h1>
                     <p class="text-gray-600 text-sm mb-2">{{ Str::limit($produto->descricao, 80) }}</p>
                     <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">{{ $produto->categoria }}</span>
@@ -70,12 +70,12 @@
                 </div>
                 
                 <div class="mt-4 flex flex-col gap-2">
-                    <a href="{{ route('produto.show', $produto->id_produto) }}" class="text-center text-blue-500 underline text-sm">
+                    <a href="{{ route('produto_individual', $produto->id_produto) }}" class="text-center text-blue-500 underline text-sm">
                         Ver Detalhes
                     </a>
 
                     @auth
-                        @if(!auth()->user()->admin)
+                        @if(auth()->user()->admin)
                             <a href="#" class="block text-center bg-green-500 text-white py-2 rounded font-bold hover:bg-green-600">
                                 Comprar
                             </a>
