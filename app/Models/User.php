@@ -51,20 +51,18 @@ class User extends Authenticatable
     {
         return $this->senha;
     }
-
-    // Quem criou
+    
     public function criador(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by', 'id_usuario');
     }
 
-    // Se admin, que produtos vende 
     public function produtos(): HasMany
     {
         return $this->hasMany(Product::class, 'vendedor_id', 'id_usuario');
     }
 
-    // Endereços do usuário
+    
     public function enderecos(): HasMany
     {
         return $this->hasMany(Endereco::class, 'usuario_id', 'id_usuario');

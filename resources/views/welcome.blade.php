@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AutoPeças</title>
+    <title>Tudo Autopeças</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="antialiased bg-gray-100">
@@ -57,31 +57,33 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         @forelse($produtos as $produto)
             <div class="p-4 bg-white shadow rounded-lg flex flex-col justify-between">
-                <div>
-                    <img src="{{ $produto->foto ?? '' }}" class="w-full h-48 object-cover rounded-lg mb-4">
-                    <h1 class="text-xl font-bold">{{ $produto->nome }}</h1>
-                    <p class="text-gray-600 text-sm mb-2">{{ Str::limit($produto->descricao, 80) }}</p>
-                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">{{ $produto->categoria }}</span>
+                <a href="{{ route('produto_individual', $produto->id_produto) }}" class="text-center text-blue-500  text-sm">
+                    <div>
+                        <img src="{{ $produto->foto ?? '' }}" class="w-full h-48 object-cover rounded-lg mb-4">
+                        <h1 class="text-xl font-bold">{{ $produto->nome }}</h1>
+                        <p class="text-gray-600 text-sm mb-2">{{ Str::limit($produto->descricao, 80) }}</p>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">{{ $produto->categoria }}</span>
+                        
+                        <p class="text-green-600 font-bold text-xl mt-3">
+                            {{ formatar_preco($produto->preco) }}
+                        </p>
+                        <p class="text-xs text-gray-400">Vendedor: {{ $produto->vendedor->nome }}</p>
+                    </div>
                     
-                    <p class="text-green-600 font-bold text-xl mt-3">
-                        {{ formatar_preco($produto->preco) }}
-                    </p>
-                    <p class="text-xs text-gray-400">Vendedor: {{ $produto->vendedor->nome }}</p>
-                </div>
-                
-                <div class="mt-4 flex flex-col gap-2">
-                    <a href="{{ route('produto_individual', $produto->id_produto) }}" class="text-center text-blue-500 underline text-sm">
-                        Ver Detalhes
-                    </a>
+                    <div class="mt-4 flex flex-col gap-2">
+                        <a href="{{ route('produto_individual', $produto->id_produto) }}" class="text-center text-blue-500 underline text-sm">
+                            Ver Detalhes
+                        </a>
 
-                    @auth
-                        @if(auth()->user()->admin)
-                            <a href="#" class="block text-center bg-green-500 text-white py-2 rounded font-bold hover:bg-green-600">
-                                Comprar
-                            </a>
-                        @endif
-                    @endauth
-                </div>
+                        @auth
+                            @if(auth()->user()->admin)
+                                <a href="#" class="block text-center bg-green-500 text-white py-2 rounded font-bold hover:bg-green-600">
+                                    Comprar
+                                </a>
+                            @endif
+                        @endauth
+                    </div>
+                </a>
             </div>
         @empty
             <div class="col-span-full text-center py-12">
