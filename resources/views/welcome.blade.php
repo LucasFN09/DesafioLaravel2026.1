@@ -76,11 +76,14 @@
                         </a>
 
                         @auth
-                            @if(auth()->user()->admin)
-                                <a href="#" class="block text-center bg-green-500 text-white py-2 rounded font-bold hover:bg-green-600">
-                                    Comprar
-                                </a>
-                            @endif
+                            @unless(auth()->user()->admin)
+                                <form action="{{ route('compra', $produto->id_produto) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="block w-full bg-green-500 text-white py-2 rounded font-bold hover:bg-green-600">
+                                        Comprar
+                                    </button>
+                                </form>
+                            @endunless
                         @endauth
                     </div>
                 </a>

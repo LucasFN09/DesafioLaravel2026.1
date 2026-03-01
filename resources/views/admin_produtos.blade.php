@@ -109,7 +109,7 @@
     </div>
 
     <div id="modalVisualizar" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-2xl">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl">
             <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white" id="visuNome"></h3>
 
             <div class="w-full flex justify-center bg-gray-100 dark:bg-gray-900 rounded-lg p-2 mb-4">
@@ -133,8 +133,8 @@
         </div>
     </div>
 
-    <div id="modalExcluir" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-sm w-full text-center">
+    <div id="modalExcluir" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-sm w-full max-h-[80vh] overflow-y-auto text-center">
             <h3 class="text-lg font-bold text-red-600 mb-4">Excluir Produto?</h3>
             <form id="formExcluir" method="POST">
                 @csrf @method('DELETE')

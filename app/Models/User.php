@@ -65,7 +65,8 @@ class User extends Authenticatable
     
     public function enderecos(): HasMany
     {
-        return $this->hasMany(Endereco::class, 'usuario_id', 'id_usuario');
+        // migration defines the FK column as usuarios_id_usuario
+        return $this->hasMany(Endereco::class, 'usuarios_id_usuario', 'id_usuario');
     }
 
     public function ComprasUsuario(): HasMany 
