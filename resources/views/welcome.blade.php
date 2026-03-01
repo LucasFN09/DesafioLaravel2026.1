@@ -9,7 +9,7 @@
 <body class="antialiased bg-gray-100">
     <nav class="bg-white shadow mb-8">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="/" class="text-2xl font-bold text-blue-600">AutoPeças</a>
+            <a href="/" class="text-2xl font-bold text-blue-600">Tudo Autopeças</a>
             <div>
                 @auth
                     <a href="{{ url('/dashboard') }}" class="text-gray-700">Dashboard</a>

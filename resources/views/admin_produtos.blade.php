@@ -9,10 +9,10 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    
+
                     <div class="mb-6">
                         <button onclick="abrirModalCriar()" class="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700 transition">
-                            + Anunciar Nova Peça
+                            + Anunciar Novo Produto
                         </button>
                     </div>
 
@@ -30,21 +30,29 @@
                                 @forelse($produtos as $produto)
                                 <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900">
                                     <td class="px-4 py-2">
-                                        <img src="{{ $produto->foto }}" class="w-10 h-10 object-cover rounded">
+                                        <div class="w-12 h-12 overflow-hidden rounded shadow-sm">
+                                            <img src="{{ $produto->foto ?? 'https://via.placeholder.com/150' }}"
+                                                class="w-full h-full object-cover">
+                                        </div>
                                     </td>
                                     <td class="px-4 py-2">{{ $produto->nome }}</td>
                                     <td class="px-4 py-2 text-green-600 font-bold">{{ formatar_preco($produto->preco) }}</td>
                                     <td class="px-4 py-2 text-center space-x-2">
-                                        <button onclick="abrirModalVisualizar({{ json_encode($produto) }})" class="text-blue-500 hover:underline">Ver</button>
-                                        <button onclick="abrirModalEditar({{ json_encode($produto) }})" class="text-yellow-500 hover:underline">Editar</button>
+                                        <button onclick="carregarDadosModal('{{ $produto->id_produto }}', 'visualizar')" class="text-blue-500 hover:underline">Ver</button>
+                                        <button onclick="carregarDadosModal('{{ $produto->id_produto }}', 'editar')" class="text-yellow-500 hover:underline">Editar</button>
                                         <button onclick="confirmarExclusao('{{ $produto->id_produto }}')" class="text-red-500 hover:underline">Excluir</button>
                                     </td>
                                 </tr>
                                 @empty
-                                    <tr><td colspan="4" class="text-center py-4">Nenhum produto encontrado.</td></tr>
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">Nenhum produto encontrado.</td>
+                                </tr>
                                 @endforelse
                             </tbody>
                         </table>
+                        <div class="mt-4">
+                            {{ $produtos->links() }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -52,68 +60,82 @@
     </div>
 
     <div id="modalProduto" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div class="p-6">
-                <h3 id="modalTitulo" class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Anunciar Peça</h3>
-                
-                <form id="formProduto" method="POST" action="{{ route('produtos.store') }}">
-                    @csrf
-                    <div id="metodoPut"></div> <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium">Nome do Produto</label>
-                            <input type="text" name="nome" id="inputNome" required class="w-full rounded-md border-gray-300 dark:bg-gray-700">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium">Preço</label>
-                                <input type="number" name="preco" id="inputPreco" step="0.01" required class="w-full rounded-md border-gray-300 dark:bg-gray-700">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium">Categoria</label>
-                                <select name="categoria" id="inputCategoria" class="w-full rounded-md border-gray-300 dark:bg-gray-700">
-                                    <option value="Motor">Motor</option>
-                                    <option value="Suspensão">Suspensão</option>
-                                    <option value="Acessórios">Acessórios</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium">Link da Foto (URL)</label>
-                            <input type="text" name="foto" id="inputFoto" class="w-full rounded-md border-gray-300 dark:bg-gray-700">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium">Descrição</label>
-                            <textarea name="descricao" id="inputDescricao" rows="3" class="w-full rounded-md border-gray-300 dark:bg-gray-700"></textarea>
-                        </div>
-                    </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
+            <h3 id="modalTitulo" class="text-xl font-bold mb-4">Adicionar Produto</h3>
 
-                    <div class="flex justify-end gap-3 mt-6">
-                        <button type="button" onclick="fecharModal('modalProduto')" class="px-4 py-2 text-gray-500">Cancelar</button>
-                        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded font-bold">Salvar Alterações</button>
+            <form id="formProduto" method="POST" action="" enctype="multipart/form-data">
+                @csrf
+                <div id="metodoPut"></div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium">Nome do Produto</label>
+                        <input type="text" name="nome" id="inputNome" required class="w-full rounded-md border-gray-300 dark:bg-gray-700">
                     </div>
-                </form>
-            </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium">Preço</label>
+                            <input type="number" name="preco" id="inputPreco" step="0.01" required class="w-full rounded-md border-gray-300 dark:bg-gray-700">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium">Categoria</label>
+                            <select name="categoria" id="inputCategoria" required class="w-full rounded-md dark:bg-gray-700">
+                                <option value="">Selecione</option>
+                                @foreach($categorias as $categoria)
+                                <option value="{{ $categoria }}">{{ $categoria }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Foto</label>
+                        <div class="mb-2">
+                            <img id="previaFoto"
+                                class="hidden w-[120px] h-[150px] object-cover rounded border-2 border-blue-500 shadow-sm">
+                        </div>
+                        <input type="file" name="foto" id="inputFoto" accept="image/*" class="...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Descrição</label>
+                        <textarea name="descricao" id="inputDescricao" rows="3" class="w-full rounded-md border-gray-300 dark:bg-gray-700"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="fecharModal('modalProduto')" class="px-4 py-2">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded font-bold">Salvar</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <div id="modalVisualizar" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
-            <h3 class="text-xl font-bold mb-4" id="visuNome"></h3>
-            <img id="visuFoto" class="w-full h-48 object-cover rounded mb-4">
-            <div class="space-y-2 text-sm">
-                <p><strong>Preço:</strong> <span id="visuPreco"></span></p>
-                <p><strong>Categoria:</strong> <span id="visuCategoria"></span></p>
-                <p><strong>Descrição:</strong></p>
-                <p id="visuDescricao" class="text-gray-600 dark:text-gray-400 italic"></p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-2xl">
+            <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white" id="visuNome"></h3>
+
+            <div class="w-full flex justify-center bg-gray-100 dark:bg-gray-900 rounded-lg p-2 mb-4">
+                <img id="visuFoto" src=""
+                    class="w-[250px] h-[300px] object-cover rounded-md shadow-sm border border-gray-200 dark:border-gray-700">
             </div>
-            <button onclick="fecharModal('modalVisualizar')" class="mt-6 w-full bg-gray-200 py-2 rounded">Fechar</button>
+
+            <div class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                <p><strong class="text-gray-900 dark:text-white">Preço:</strong> <span id="visuPreco"></span></p>
+                <p><strong class="text-gray-900 dark:text-white">Categoria:</strong> <span id="visuCategoria"></span></p>
+                <div>
+                    <strong class="text-gray-900 dark:text-white">Descrição:</strong>
+                    <p id="visuDescricao" class="mt-1 text-gray-500 dark:text-gray-400 italic leading-relaxed"></p>
+                </div>
+            </div>
+
+            <button onclick="fecharModal('modalVisualizar')"
+                class="mt-6 w-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-semibold py-2 rounded-lg transition">
+                Fechar
+            </button>
         </div>
     </div>
 
     <div id="modalExcluir" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-sm w-full text-center">
             <h3 class="text-lg font-bold text-red-600 mb-4">Excluir Produto?</h3>
-            <p class="mb-6">Esta ação é permanente.</p>
             <form id="formExcluir" method="POST">
                 @csrf @method('DELETE')
                 <div class="flex justify-center gap-4">
@@ -125,50 +147,63 @@
     </div>
 
     <script>
-        const modalProduto = document.getElementById('modalProduto');
-        const formProduto = document.getElementById('formProduto');
-        const metodoPut = document.getElementById('metodoPut');
+        const getEl = (id) => document.getElementById(id);
 
-        function abrirModalCriar() {
-            document.getElementById('modalTitulo').innerText = "Anunciar Peça";
-            formProduto.action = "{{ route('produtos.store') }}";
-            formProduto.reset();
-            metodoPut.innerHTML = ""; // Limpa o PUT
-            modalProduto.classList.remove('hidden');
+        window.carregarDadosModal = function(id, tipo) {
+            fetch(`/admin_produtos/dados/${id}`)
+                .then(res => res.json())
+                .then(produto => {
+                    tipo === 'editar' ? abrirEdicao(produto) : abrirVisualizacao(produto);
+                })
+                .catch(() => alert('Erro ao carregar dados.'));
         }
 
-        function abrirModalEditar(produto) {
-            document.getElementById('modalTitulo').innerText = "Editar Peça";
-            formProduto.action = `/produtos/${produto.id_produto}`;
-            metodoPut.innerHTML = `<input type="hidden" name="_method" value="PUT">`;
-            
-            // Preenche os campos
-            document.getElementById('inputNome').value = produto.nome;
-            document.getElementById('inputPreco').value = produto.preco;
-            document.getElementById('inputCategoria').value = produto.categoria;
-            document.getElementById('inputFoto').value = produto.foto;
-            document.getElementById('inputDescricao').value = produto.descricao;
+        function abrirEdicao(produto) {
+            const form = getEl('formProduto');
+            getEl('modalTitulo').innerText = "Editar Peça";
+            form.action = `/admin_produtos/${produto.id_produto}`;
+            getEl('metodoPut').innerHTML = `<input type="hidden" name="_method" value="PUT">`;
 
-            modalProduto.classList.remove('hidden');
+            getEl('inputNome').value = produto.nome;
+            getEl('inputPreco').value = produto.preco;
+            getEl('inputCategoria').value = produto.categoria;
+            getEl('inputDescricao').value = produto.descricao || '';
+
+            if (produto.foto) {
+                getEl('previaFoto').src = produto.foto;
+                getEl('previaFoto').classList.remove('hidden');
+            } else {
+                getEl('previaFoto').classList.add('hidden');
+            }
+            getEl('modalProduto').classList.remove('hidden');
         }
 
-        function abrirModalVisualizar(produto) {
-            document.getElementById('visuNome').innerText = produto.nome;
-            document.getElementById('visuFoto').src = produto.foto || 'https://via.placeholder.com/300';
-            document.getElementById('visuPreco').innerText = 'R$ ' + parseFloat(produto.preco).toLocaleString('pt-br', {minimumFractionDigits: 2});
-            document.getElementById('visuCategoria').innerText = produto.categoria;
-            document.getElementById('visuDescricao').innerText = produto.descricao || 'Sem descrição.';
-            
-            document.getElementById('modalVisualizar').classList.remove('hidden');
+        function abrirVisualizacao(produto) {
+            getEl('visuNome').innerText = produto.nome;
+            getEl('visuFoto').src = produto.foto || 'https://via.placeholder.com/300';
+            getEl('visuPreco').innerText = 'R$ ' + parseFloat(produto.preco).toLocaleString('pt-br', {
+                minimumFractionDigits: 2
+            });
+            getEl('visuCategoria').innerText = produto.categoria;
+            getEl('visuDescricao').innerText = produto.descricao || 'Sem descrição.';
+            getEl('modalVisualizar').classList.remove('hidden');
         }
 
-        function confirmarExclusao(id) {
-            document.getElementById('formExcluir').action = `/produtos/${id}`;
-            document.getElementById('modalExcluir').classList.remove('hidden');
+        window.abrirModalCriar = function() {
+            const form = getEl('formProduto');
+            getEl('modalTitulo').innerText = "Anunciar Nova Peça";
+            form.action = "/admin_produtos";
+            form.reset();
+            getEl('metodoPut').innerHTML = "";
+            getEl('previaFoto').classList.add('hidden');
+            getEl('modalProduto').classList.remove('hidden');
         }
 
-        function fecharModal(id) {
-            document.getElementById(id).classList.add('hidden');
+        window.confirmarExclusao = function(id) {
+            getEl('formExcluir').action = `/admin_produtos/${id}`;
+            getEl('modalExcluir').classList.remove('hidden');
         }
+
+        window.fecharModal = (id) => getEl(id).classList.add('hidden');
     </script>
 </x-app-layout>

@@ -30,4 +30,11 @@ class Product extends Model
     {
         return $this->belongsTo(User::class, 'vendedor_id', 'id_usuario');
     }
+
+    public static function categorias()
+    {
+        return ['Motor e Performance','Pneus e Rodas','Som e Vídeo','Iluminação','Óleos e Fluidos','Freios e Suspensão','Acessórios Internos','Acessórios Externos','Ferramentas','Outros'];
+    }
+
+    
 }
