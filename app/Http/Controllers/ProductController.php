@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
-    // ESTA É A FUNÇÃO QUE ESTÁ FALTANDO:
     public function index(Request $request)
     {
         $query = Product::with('vendedor');
@@ -43,7 +42,14 @@ class ProductController extends Controller
     {
         $produtos = Product::where('vendedor_id', Auth::id())->latest()->paginate(10);
         $categorias = Product::categorias();
-        return view('admin_produtos', compact('produtos', 'categorias'));
+
+        // vendas realizadas pelos meus produtos
+        $vendas = \App\Models\Compra::where('id_vendedor', Auth::id())
+                    ->with(['produto', 'comprador'])
+                    ->orderBy('data', 'desc')
+                    ->paginate(10);
+
+        return view('admin_produtos', compact('produtos', 'categorias', 'vendas'));
     }
 
     // Rota AJAX que você pediu

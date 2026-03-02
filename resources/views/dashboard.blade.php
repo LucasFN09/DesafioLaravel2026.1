@@ -18,6 +18,10 @@
             <a href="{{ route('perfil_pessoal') }}" class="inline-block bg-purple-600 text-white px-6 py-2 rounded font-bold hover:bg-purple-700 transition ml-4">
                 Meu Perfil
             </a>
+
+            <a href="{{ route('vendas.historico') }}" class="inline-block bg-yellow-600 text-white px-6 py-2 rounded font-bold hover:bg-yellow-700 transition ml-4">
+                Relatório de Vendas
+            </a>
         @else
             <p class="text-gray-700 mb-4">Você é um usuário comum. Explore os produtos disponíveis e aproveite as ofertas!</p>
             <a href="{{ route('historico') }}" class="inline-block bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700 transition">
@@ -25,6 +29,9 @@
             </a>
             <a href="{{ route('perfil_pessoal') }}" class="inline-block bg-purple-600 text-white px-6 py-2 rounded font-bold hover:bg-purple-700 transition ml-4">
                 Meu Perfil
+            </a>
+            <a href="{{ route('vendas.historico') }}" class="inline-block bg-yellow-600 text-white px-6 py-2 rounded font-bold hover:bg-yellow-700 transition ml-4">
+                Ver histórico de compras
             </a>
         @endif
 

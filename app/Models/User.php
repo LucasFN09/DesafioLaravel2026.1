@@ -14,11 +14,13 @@ class User extends Authenticatable
 
     protected $table = 'usuarios';
     protected $primaryKey = 'id_usuario';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'nome',
         'email',
-        'senha', // No banco usamos 'senha'
+        'senha', // usarei 'senha' para todos menos o admin@admin(senha 'admin'), então precisamos manter esse nome aqui.
         'telefone',
         'data_nascimento',
         'cpf',

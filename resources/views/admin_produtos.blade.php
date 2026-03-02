@@ -54,6 +54,114 @@
                             {{ $produtos->links() }}
                         </div>
                     </div>
+                <!-- Gráfico de Produtos Cadastrados -->
+                <div class="mt-8 bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                    <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Produtos Cadastrados por Mês</h3>
+                    <canvas id="chartProdutos"></canvas>
+                </div>
+
+                <!-- Gráfico de Vendas Realizadas -->
+                <div class="mt-8 bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                    <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Vendas Realizadas por Mês</h3>
+                    <canvas id="chartVendas"></canvas>
+                </div>
+
+                <!-- Tabela de Compras Realizadas -->
+                <div class="mt-8 bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                    <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Compras Realizadas dos Meus Produtos</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full border-collapse border border-gray-300 dark:border-gray-600">
+                            <thead class="bg-gray-100 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Produto</th>
+                                    <th class="px-4 py-2 text-left">Comprador</th>
+                                    <th class="px-4 py-2 text-left">Valor</th>
+                                    <th class="px-4 py-2 text-left">Data</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($vendas->where('produto.usuario_id', auth()->id()) as $venda)
+                                <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900">
+                                    <td class="px-4 py-2">{{ $venda->produto->nome }}</td>
+                                    <td class="px-4 py-2">{{ $venda->comprador->nome }}</td>
+                                    <td class="px-4 py-2 text-green-600 font-bold">{{ formatar_preco($venda->produto->preco) }}</td>
+                                    <td class="px-4 py-2">{{ optional($venda->data)->format('d/m/Y H:i') }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-gray-500">Nenhuma compra registrada.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                        @if($vendas->count() > 0)
+                        <div class="mt-4">
+                            {{ $vendas->links() }}
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script>
+                    // Gráfico de Produtos
+                    fetch('/admin_produtos/chart-data')
+                        .then(res => res.json())
+                        .then(data => {
+                            new Chart(document.getElementById('chartProdutos'), {
+                                type: 'bar',
+                                data: {
+                                    labels: data.meses,
+                                    datasets: [{
+                                        label: 'Produtos Cadastrados',
+                                        data: data.produtos,
+                                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                                        borderColor: 'rgb(59, 130, 246)',
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    plugins: {
+                                        legend: {display: true}
+                                    },
+                                    scales: {
+                                        y: {beginAtZero: true}
+                                    }
+                                }
+                            });
+                        });
+
+                    // Gráfico de Vendas
+                    fetch('/admin_produtos/chart-vendas')
+                        .then(res => res.json())
+                        .then(data => {
+                            new Chart(document.getElementById('chartVendas'), {
+                                type: 'line',
+                                data: {
+                                    labels: data.meses,
+                                    datasets: [{
+                                        label: 'Vendas Realizadas',
+                                        data: data.vendas,
+                                        borderColor: 'rgb(34, 197, 94)',
+                                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                                        borderWidth: 2,
+                                        tension: 0.4
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    plugins: {
+                                        legend: {display: true}
+                                    },
+                                    scales: {
+                                        y: {beginAtZero: true}
+                                    }
+                                }
+                            });
+                        });
+                </script>
+
                 </div>
             </div>
         </div>

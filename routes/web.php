@@ -36,6 +36,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Compras
     Route::post('/compra/{id}', [App\Http\Controllers\CompraController::class, 'store'])->name('compra');
     Route::get('/historico', [App\Http\Controllers\CompraController::class, 'history'])->name('historico');
+    Route::get('/historico-compras', [App\Http\Controllers\CompraController::class, 'purchaseHistory'])->name('compras.historico');
+    Route::get('/historico-vendas', [App\Http\Controllers\CompraController::class, 'salesHistory'])->name('vendas.historico');
+    Route::get('/vendas/pdf', [App\Http\Controllers\CompraController::class, 'exportPdf'])->name('vendas.pdf');
+    Route::get('/vendas/excel', [App\Http\Controllers\CompraController::class, 'exportExcel'])->name('vendas.excel');
 
     Route::get('/perfil_pessoal', function () {
         return view('perfil_pessoal');

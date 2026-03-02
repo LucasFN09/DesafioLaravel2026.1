@@ -79,7 +79,11 @@
                             @unless(auth()->user()->admin)
                                 <form action="{{ route('compra', $produto->id_produto) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="block w-full bg-green-500 text-white py-2 rounded font-bold hover:bg-green-600">
+                                    <div class="mb-2">
+                                        <label class="text-sm text-gray-600">Quantidade:</label>
+                                        <input type="number" name="quantidade" value="1" min="1" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1">
+                                    </div>
+                                    <button type="submit" class="block w-full bg-green-500 text-black py-2 rounded font-bold hover:bg-green-600">
                                         Comprar
                                     </button>
                                 </form>

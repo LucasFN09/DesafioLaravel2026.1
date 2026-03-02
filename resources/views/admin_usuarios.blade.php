@@ -11,10 +11,22 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
                     @if(Auth::user()->admin)
-                    <div class="mb-6">
+                    <div class="mb-6 flex flex-col sm:flex-row gap-4 items-center">
                         <button onclick="abrirModalCriar()" class="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700 transition">
                             + Novo Usuário
                         </button>
+                        
+                        <div class="flex gap-2">
+                            <a href="{{ route('admin_usuarios') }}" class="px-4 py-2 rounded font-medium transition {{ !$filter ? 'bg-gray-800 text-white dark:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300' }}">
+                                Todos
+                            </a>
+                            <a href="{{ route('admin_usuarios', ['filter' => 'admin']) }}" class="px-4 py-2 rounded font-medium transition {{ $filter === 'admin' ? 'bg-gray-800 text-white dark:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300' }}">
+                                Administradores
+                            </a>
+                            <a href="{{ route('admin_usuarios', ['filter' => 'comum']) }}" class="px-4 py-2 rounded font-medium transition {{ $filter === 'comum' ? 'bg-gray-800 text-white dark:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300' }}">
+                                Usuários Comuns
+                            </a>
+                        </div>
                     </div>
                     @endif
 
@@ -61,7 +73,7 @@
     </div>
 
     <div id="modalUsuario" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[10vh] overflow-y-scroll p-6">
             <h3 id="modalTitulo" class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Adicionar Usuário</h3>
 
             <form id="formUsuario" method="POST" action="" enctype="multipart/form-data">
@@ -127,29 +139,29 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium">Número</label>
-                                <input type="text" name="numero" id="inputNumero" required class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:text-white">
+                                <input type="text" name="numero" id="inputNumero" required class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:text-black">
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium">Logradouro (Rua)</label>
-                            <input type="text" name="logradouro" id="inputLogradouro" readonly class="w-full rounded-md border-gray-300 bg-gray-100 dark:bg-gray-600 dark:text-white">
+                            <input type="text" name="logradouro" id="inputLogradouro" readonly class="w-full rounded-md border-gray-300 bg-gray-100 dark:bg-gray-600 dark:text-black">
                         </div>
                         <div>
                             <label class="block text-sm font-medium">Complemento</label>
-                            <input type="text" name="complemento" id="inputComplemento" class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:text-white">
+                            <input type="text" name="complemento" id="inputComplemento" class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:text-black">
                         </div>
                         <div>
                             <label class="block text-sm font-medium">Bairro</label>
-                            <input type="text" name="bairro" id="inputBairro" readonly class="w-full rounded-md border-gray-300 bg-gray-100 dark:bg-gray-600 dark:text-white">
+                            <input type="text" name="bairro" id="inputBairro" readonly class="w-full rounded-md border-gray-300 bg-gray-100 dark:bg-gray-600 dark:text-black">
                         </div>
                         <div class="grid grid-cols-3 gap-2">
                             <div class="col-span-2">
                                 <label class="block text-sm font-medium">Cidade</label>
-                                <input type="text" name="cidade" id="inputCidade" readonly class="w-full rounded-md border-gray-300 bg-gray-100 dark:bg-gray-600 dark:text-white">
+                                <input type="text" name="cidade" id="inputCidade" readonly class="w-full rounded-md border-gray-300 bg-gray-100 dark:bg-gray-600 dark:text-black">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium">Estado</label>
-                                <input type="text" name="estado" id="inputEstado" readonly class="w-full rounded-md border-gray-300 bg-gray-100 dark:bg-gray-600 dark:text-white">
+                                <input type="text" name="estado" id="inputEstado" readonly class="w-full rounded-md border-gray-300 bg-gray-100 dark:bg-gray-600 dark:text-black">
                             </div>
                         </div>
                     </div>
@@ -208,7 +220,7 @@
     <script>
         const getEl = (id) => document.getElementById(id);
 
-        // FUNÇÃO DE BUSCA DO VIACEP VIA NOSSA API INTERNA
+        // FUNÇÃO DE BUSCA DO VIACEP
         window.buscarCep = function() {
             let cep = getEl('inputCep').value.replace(/\D/g, '');
             if (cep.length === 8) {

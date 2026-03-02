@@ -3,84 +3,52 @@
 namespace App\Http\Controllers;
 
 use App\Models\Compra;
-use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Exports\VendasExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CompraController extends Controller
 {
-    /**
-     * Registra uma nova compra.
-     */
-    public function store($idProduto)
+    public function purchaseHistory(Request $request)
     {
         $user = Auth::user();
-        if (!$user) {
-            abort(403);
-        }
+        // Filtra onde o ID do comprador é o ID do usuário logado
+        $query = Compra::with(['produto', 'vendedor'])
+            ->where('id_comprador', $user->id_usuario);
 
-        if ($user->admin) {
-            return redirect()->back()->with('error', 'Administradores não podem efetuar compras.');
-        }
+        $this->applyFilters($query, $request);
 
-        $produto = Product::findOrFail($idProduto);
-
-        // não pode comprar seus próprios produtos
-        if ($produto->vendedor_id === $user->id_usuario) {
-            return redirect()->back()->with('error', 'Você não pode comprar sua própria peça.');
-        }
-
-        // verifica saldo
-        if ($user->saldo < $produto->preco) {
-            return redirect()->back()->with('error', 'Saldo insuficiente para a compra.');
-        }
-
-        // débito do comprador
-        $user->saldo -= $produto->preco;
-        $user->saldo;
-
-        // crédito no vendedor
-        $vendedor = $produto->vendedor;
-        if ($vendedor) {
-            $vendedor->saldo += $produto->preco;
-            $vendedor->save();
-        }
-
-        // gravação da compra
-        Compra::create([
-            'id_produto' => $produto->id_produto,
-            'id_comprador' => $user->id_usuario,
-            'id_vendedor' => $produto->vendedor_id,
-            'valor' => $produto->preco,
-            'data' => Carbon::now(),
-            'quantidade' => 1,
-        ]);
-
-        return redirect()->route('historico')->with('success', 'Compra realizada com sucesso!');
+        $registros = $query->orderBy('data', 'desc')->paginate(10);
+        
+        return view('historico', ['registros' => $registros, 'tipo' => 'compras']);
     }
 
-    /**
-     * Exibe o histórico de compras do usuário (ou todas para admin).
-     */
-    public function history()
+    public function salesHistory(Request $request)
     {
         $user = Auth::user();
-        if (!$user) {
-            abort(403);
+        $query = Compra::with(['produto', 'comprador']);
+
+        // Se não for admin, filtra apenas onde o ID do vendedor é o do logado
+        if (!$user->admin) {
+            $query->where('id_vendedor', $user->id_usuario);
         }
 
-        if ($user->admin) {
-            $compras = Compra::with(['produto', 'comprador', 'vendedor'])
-                ->latest()
-                ->paginate(10);
-        } else {
-            $compras = Compra::with(['produto', 'vendedor'])
-                ->where('id_comprador', $user->id_usuario)
-                ->latest()
-                ->paginate(10);
-        }
+        $this->applyFilters($query, $request);
 
-        return view('historico', compact('compras'));
+        $registros = $query->orderBy('data', 'desc')->paginate(10);
+
+        return view('historico', ['registros' => $registros, 'tipo' => 'vendas']);
+    }
+
+    private function applyFilters($query, $request)
+    {
+        if ($request->filled('data_inicio')) {
+            $query->whereDate('data', '>=', $request->data_inicio);
+        }
+        if ($request->filled('data_fim')) {
+            $query->whereDate('data', '<=', $request->data_fim);
+        }
     }
 }

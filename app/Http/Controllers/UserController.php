@@ -12,16 +12,35 @@ use Illuminate\Support\Facades\Http;
 class UserController extends Controller
 {
     // Lista os usuários na tabela
-    public function adminIndex()
+    public function adminIndex(Request $request)
     {
-        // Se for admin, vê todos. Se não for, vê apenas ele mesmo (RF005)
+        $filter = $request->query('filter');
+
+        // Se for admin, vê todos (mas com regras específicas). Se não for, vê apenas ele mesmo (RF005)
         if (Auth::user()->admin) {
-            $usuarios = User::latest()->paginate(10);
+            $query = User::latest();
+
+            // admin só vê usuários comuns + admins que ele criou + ele mesmo
+            $query->where(function($q) {
+                $q->where('admin', false)
+                  ->orWhere('created_by', Auth::id())
+                  ->orWhere('id_usuario', Auth::id());
+            });
+
+            // Aplica filtro se fornecido
+            if ($filter === 'admin') {
+                // também respeita a regra acima pois já filtramos
+                $query->where('admin', true);
+            } elseif ($filter === 'comum') {
+                $query->where('admin', false);
+            }
+
+            $usuarios = $query->paginate(10);
         } else {
             $usuarios = User::where('id_usuario', Auth::id())->paginate(1);
         }
 
-        return view('admin_usuarios', compact('usuarios'));
+        return view('admin_usuarios', compact('usuarios', 'filter'));
     }
 
     // Retorna os dados via AJAX para preencher os modais (incluindo o endereço)
@@ -35,9 +54,17 @@ class UserController extends Controller
             return response()->json(['error' => 'Usuário não encontrado'], 404);
         }
 
-        // Verifica permissão (Admin vê todos, User só ele mesmo)
-        if (!Auth::user()->admin && $usuario->id_usuario !== Auth::id()) {
-            return response()->json(['error' => 'Não autorizado'], 403);
+        // Verifica permissão
+        if (!Auth::user()->admin) {
+            // user comum só vê ele mesmo
+            if ($usuario->id_usuario !== Auth::id()) {
+                return response()->json(['error' => 'Não autorizado'], 403);
+            }
+        } else {
+            // admin: só acessa outros admins criados por ele ou quaisquer usuários comuns
+            if ($usuario->admin && $usuario->id_usuario !== Auth::id() && $usuario->created_by !== Auth::id()) {
+                return response()->json(['error' => 'Não autorizado'], 403);
+            }
         }
 
         return response()->json($usuario);
@@ -105,7 +132,14 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $usuario = User::findOrFail($id);
-        if (!Auth::user()->admin && $usuario->id_usuario !== Auth::id()) abort(403);
+        if (Auth::user()->admin) {
+            // admin só pode alterar usuário comum ou admin criado por ele ou a si mesmo
+            if ($usuario->admin && $usuario->id_usuario !== Auth::id() && $usuario->created_by !== Auth::id()) {
+                abort(403);
+            }
+        } else {
+            if ($usuario->id_usuario !== Auth::id()) abort(403);
+        }
 
         $request->validate([
             'nome' => 'required|string|max:255',
@@ -147,7 +181,13 @@ class UserController extends Controller
     public function destroy($id)
     {
         $usuario = User::findOrFail($id);
-        if (!Auth::user()->admin && $usuario->id_usuario !== Auth::id()) abort(403);
+        if (Auth::user()->admin) {
+            if ($usuario->admin && $usuario->id_usuario !== Auth::id() && $usuario->created_by !== Auth::id()) {
+                abort(403);
+            }
+        } else {
+            if ($usuario->id_usuario !== Auth::id()) abort(403);
+        }
 
         // Opcional: deletar endereços vinculados antes se o banco não tiver "ON DELETE CASCADE"
         Endereco::where('usuarios_id_usuario', $id)->delete();
