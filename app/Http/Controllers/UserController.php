@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -227,5 +228,34 @@ class UserController extends Controller
         }
 
         return redirect()->route('perfil_pessoal')->with('success','Perfil atualizado!');
+    }
+
+    // Enviar e-mail para usuário (RF011)
+    public function sendEmail(Request $request, $id)
+    {
+        // Verifica se é admin
+        if (!Auth::user()->admin) {
+            return response()->json(['error' => 'Apenas administradores podem enviar e-mails'], 403);
+        }
+
+        $usuario = User::findOrFail($id);
+
+        // Valida dados
+        $request->validate([
+            'assunto' => 'required|string|max:255',
+            'mensagem' => 'required|string',
+        ]);
+
+        try {
+            Mail::to($usuario->email)->send(new \App\Mail\ContactUserMail(
+                $usuario,
+                $request->assunto,
+                $request->mensagem
+            ));
+
+            return response()->json(['success' => 'E-mail enviado com sucesso!']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Erro ao enviar e-mail: ' . $e->getMessage()], 500);
+        }
     }
 }

@@ -47,6 +47,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/perfil_pessoal', [App\Http\Controllers\UserController::class, 'updateProfile'])->name('perfil_pessoal.update');
 
+    // RF011 - Enviar e-mail para usuário
+    Route::post('/admin_usuarios/{id}/enviar-email', [App\Http\Controllers\UserController::class, 'sendEmail'])->name('usuarios.enviar-email');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

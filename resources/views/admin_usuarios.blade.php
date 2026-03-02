@@ -55,6 +55,7 @@
                                     <td class="px-4 py-2 text-center space-x-2">
                                         <button onclick="carregarDadosModal('{{ $user->id_usuario }}', 'visualizar')" class="text-blue-500 hover:underline">Ver</button>
                                         <button onclick="carregarDadosModal('{{ $user->id_usuario }}', 'editar')" class="text-yellow-500 hover:underline">Editar</button>
+                                        <button onclick="abrirModalEmail('{{ $user->id_usuario }}', '{{ $user->nome }}', '{{ $user->email }}')" class="text-green-500 hover:underline">E-mail</button>
                                         <button onclick="confirmarExclusao('{{ $user->id_usuario }}')" class="text-red-500 hover:underline">Excluir</button>
                                     </td>
                                 </tr>
@@ -217,6 +218,37 @@
         </div>
     </div>
 
+    <!-- Modal de Enviar E-mail (RF011) -->
+    <div id="modalEmail" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
+            <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Enviar E-mail</h3>
+
+            <div class="mb-4">
+                <p class="text-sm text-gray-600 dark:text-gray-300">
+                    Para: <strong id="emailUsuarioNome"></strong> (<span id="emailUsuarioEmail"></span>)
+                </p>
+                <input type="hidden" id="emailUsuarioId">
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-900 dark:text-white">Assunto</label>
+                    <input type="text" id="emailAssunto" class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:text-white" placeholder="Título do e-mail">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-900 dark:text-white">Mensagem</label>
+                    <textarea id="emailMensagem" rows="6" class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:text-white" placeholder="Digite sua mensagem aqui..."></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-6 pt-4 border-t">
+                <button type="button" onclick="fecharModal('modalEmail')" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Cancelar</button>
+                <button type="button" onclick="enviarEmail()" class="bg-green-600 text-white px-6 py-2 rounded font-bold hover:bg-green-700">Enviar E-mail</button>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         const getEl = (id) => document.getElementById(id);
 
@@ -338,5 +370,45 @@
         }
 
         window.fecharModal = (id) => getEl(id).classList.add('hidden');
+
+        // RF011 - Enviar E-mail
+        window.abrirModalEmail = function(id, nome, email) {
+            getEl('emailUsuarioId').value = id;
+            getEl('emailUsuarioNome').innerText = nome;
+            getEl('emailUsuarioEmail').innerText = email;
+            getEl('emailAssunto').value = '';
+            getEl('emailMensagem').value = '';
+            getEl('modalEmail').classList.remove('hidden');
+        }
+
+        window.enviarEmail = function() {
+            const id = getEl('emailUsuarioId').value;
+            const assunto = getEl('emailAssunto').value;
+            const mensagem = getEl('emailMensagem').value;
+
+            if (!assunto || !mensagem) {
+                alert('Preencha assunto e mensagem!');
+                return;
+            }
+
+            fetch(`/admin_usuarios/${id}/enviar-email`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ assunto, mensagem }),
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.success);
+                    getEl('modalEmail').classList.add('hidden');
+                } else {
+                    alert('Erro: ' + (data.error || 'Falha ao enviar'));
+                }
+            })
+            .catch(err => alert('Erro: ' + err.message));
+        }
     </script>
 </x-app-layout>
