@@ -15,10 +15,7 @@
             <a href="{{ route('admin_usuarios') }}" class="inline-block bg-green-600 text-white px-6 py-2 rounded font-bold hover:bg-green-700 transition ml-4">
                 Gerenciar Usuários
             </a>
-            <a href="{{ route('perfil_pessoal') }}" class="inline-block bg-purple-600 text-white px-6 py-2 rounded font-bold hover:bg-purple-700 transition ml-4">
-                Meu Perfil
-            </a>
-
+            
             <a href="{{ route('vendas.historico') }}" class="inline-block bg-yellow-600 text-white px-6 py-2 rounded font-bold hover:bg-yellow-700 transition ml-4">
                 Relatório de Vendas
             </a>

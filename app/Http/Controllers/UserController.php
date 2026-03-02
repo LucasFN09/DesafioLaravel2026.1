@@ -195,4 +195,37 @@ class UserController extends Controller
         $usuario->delete();
         return redirect()->route('admin_usuarios')->with('success', 'Usuário excluído!');
     }
+
+    // Atualiza perfil pessoal
+    public function updateProfile(Request $request)
+    {
+        $user = User::findOrFail(Auth::id());
+
+        $request->validate([
+            'nome' => 'required|string|max:255',
+            'email' => 'required|email|unique:usuarios,email,' . $user->id_usuario . ',id_usuario',
+            'telefone' => 'nullable|string',
+            'data_nascimento' => 'nullable|date',
+            'cep' => 'nullable|string',
+            'numero' => 'nullable|string',
+            'logradouro' => 'nullable|string',
+            'bairro' => 'nullable|string',
+            'cidade' => 'nullable|string',
+            'estado' => 'nullable|string',
+            'complemento' => 'nullable|string',
+        ]);
+
+        $userUpdates = $request->only(['nome','email','telefone','data_nascimento']);
+        $user->update($userUpdates);
+
+        // cria/atualiza endereço
+        if ($request->filled('cep') || $request->filled('numero')) {
+            Endereco::updateOrCreate(
+                ['usuarios_id_usuario' => $user->id_usuario],
+                $request->only(['cep','numero','logradouro','bairro','cidade','estado','complemento'])
+            );
+        }
+
+        return redirect()->route('perfil_pessoal')->with('success','Perfil atualizado!');
+    }
 }
