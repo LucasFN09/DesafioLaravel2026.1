@@ -53,6 +53,11 @@ class User extends Authenticatable
     {
         return $this->senha;
     }
+
+    public function getEmailForPasswordReset()
+    {
+        return $this->email;
+    }
     
     public function criador(): BelongsTo
     {
